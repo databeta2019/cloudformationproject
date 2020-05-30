@@ -139,8 +139,6 @@ Resources:
          unzip -o udacity.zip
       # Image for Ubuntu 18.04 4GB RAM 2 CPUs 
       ImageId: ami-003634241a8fcdec0
-      # Private KeyName
-      KeyName: cloudformationProject
       # For access to S3
       IamInstanceProfile:
         Ref: ProfileWithRolesForOurApp
@@ -164,6 +162,8 @@ Resources:
       MaxSize: '6'
       TargetGroupARNs:
       - Ref: WebAppTargetGroup
+  # Did not want to Add a sec group as it will need my IP address
+  # All changes are pushed to Public Github
   BastionConfig:
     Type: AWS::EC2::Instance
     Properties:
@@ -171,8 +171,6 @@ Resources:
       ImageId: ami-003634241a8fcdec0
       SubnetId: 
         Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
-      # Private KeyName
-      KeyName: jumpboxkey
       SecurityGroupIds :
       - !GetAtt WebServerSecGroup.GroupId
       # SecurityGroups:
@@ -188,7 +186,8 @@ Outputs:
         Value: !GetAtt WebAppLB.DNSName
         Export:
           Name: !Sub ${EnvironmentName}-LB
-
+  # Public Name where project is running
+  # http://proje-webap-5fabr329npxb-103958703.us-west-2.elb.amazonaws.com/
 
   # instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
   # never give too much permissions to your EC2 instances! if they get hacked, the permissions get hacked also!
