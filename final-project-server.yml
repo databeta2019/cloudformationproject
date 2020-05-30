@@ -1,18 +1,46 @@
+Description: >
+    This stack is dedicated for Servers that will be created
 Parameters:
   # Paramenters are entirely optional.
   # but using them will make your cloudformation templates more reusable
   # use them for things that may change over time, such as instance type,
   # VPCs and so on.
+  # This is the only parameter we need as we have exported this Environment name as the prefix
+  # We do not need this either as we can directly us the name everywhere, but better for automation
+  EnvironmentName:
+      Description: An environment name that will be prefixed to resource names
+      Type: String
 Resources:
+  # This is the most important resource. It basically defines the Target that others are using for their operation 
+  # Whether it is the loadBalance for balancing or the Auto Scaling group to create or destroy servers
+  WebAppTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 8
+      HealthyThresholdCount: 2
+      Port: 8080
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      TargetGroupAttributes:
+          - Key: "slow_start.duration_seconds"
+            Value: "300"
+      VpcId: 
+        Fn::ImportValue:
+          Fn::Sub: "${EnvironmentName}-VPCID"
+
+
   # instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
   # never give too much permissions to your EC2 instances! if they get hacked, the permissions get hacked also!
   # in this example, I create a Role called UdacityS3ReadOnlyC2 and just give it a policy of S3 Read-Only Access
-  ProfileWithRolesForOurApp:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      Roles:
-        - UdacityS3ReadOnlyEC2
-Outputs: 
+  # ProfileWithRolesForOurApp:
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties: 
+  #     Roles:
+  #       - UdacityS3ReadOnlyEC2
+# Outputs: 
   # This is also optional.
   # Bonus points for useful outputs!
   # for example, if you create a Load Balancer
