@@ -181,6 +181,12 @@ Resources:
       - DeviceName: "/dev/sdk"
         Ebs:
           VolumeSize: '10'
+Outputs: 
+    LB: 
+        Description: URL of LoadBalance
+        Value: !GetAtt WebAppLB.DNSName
+        Export:
+          Name: !Sub ${EnvironmentName}-LB
 
 
   # instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
