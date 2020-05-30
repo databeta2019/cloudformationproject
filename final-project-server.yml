@@ -130,13 +130,17 @@ Resources:
         Fn::Base64: !Sub |
          #!/bin/bash
          apt-get update -y
+         apt-get install unzip awscli -y
          apt-get install apache2 -y
          systemctl start apache2.service
          cd /var/www/html
-         echo "Udacity Demo Web Server Up and Running!" > index.html
-      # ImageId: ami-0d1cd67c26f5fca19
+         aws s3 cp s3://udacity-demo-1/udacity.zip .
+         unzip -o udacity.zip
+      # Image for Ubuntu 18.04 4GB RAM 2 CPUs 
       ImageId: ami-003634241a8fcdec0
+      # Private KeyName
       KeyName: cloudformationProject
+      # For access to S3
       IamInstanceProfile:
         Ref: ProfileWithRolesForOurApp
       SecurityGroups:
@@ -159,6 +163,24 @@ Resources:
       MaxSize: '1'
       TargetGroupARNs:
       - Ref: WebAppTargetGroup
+  BastionConfig:
+    Type: AWS::EC2::Instance
+    Properties:
+      # Image for Ubuntu 18.04 4GB RAM 2 CPUs 
+      ImageId: ami-003634241a8fcdec0
+      SubnetId: 
+        Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
+      # Private KeyName
+      KeyName: jumpboxkey
+      SecurityGroupIds :
+      - !GetAtt WebServerSecGroup.GroupId
+      # SecurityGroups:
+      # - Ref: WebServerSecGroup
+      InstanceType: t2.medium
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sdk"
+        Ebs:
+          VolumeSize: '10'
 
 
   # instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
@@ -184,6 +206,12 @@ Resources:
 #          cd /var/www/html
 #          echo "Udacity Demo Web Server Up and Running!" > index.html
 
+        #  #!/bin/bash
+        #  apt-get update -y
+        #  apt-get install apache2 -y
+        #  systemctl start apache2.service
+        #  cd /var/www/html
+        #  echo "Udacity Demo Web Server Up and Running!" > index.html
 
 # Starter code in the project section of the course
 # Parameters:
