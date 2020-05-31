@@ -144,7 +144,7 @@ Resources:
         Ref: ProfileWithRolesForOurApp
       SecurityGroups:
       - Ref: WebServerSecGroup
-      InstanceType: t2.medium
+      InstanceType: t3.small
       BlockDeviceMappings:
       - DeviceName: "/dev/sdk"
         Ebs:
@@ -175,7 +175,7 @@ Resources:
       - !GetAtt WebServerSecGroup.GroupId
       # SecurityGroups:
       # - Ref: WebServerSecGroup
-      InstanceType: t2.micro
+      InstanceType: t3.small
       BlockDeviceMappings:
       - DeviceName: "/dev/sdk"
         Ebs:
